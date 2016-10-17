@@ -1,7 +1,7 @@
 #ifndef SPEEDTREE_COMMON_INCLUDED
 #define SPEEDTREE_COMMON_INCLUDED
 
-#include "UnityCG.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
 
 #define SPEEDTREE_Y_UP
 
@@ -9,7 +9,7 @@
 	#define GEOM_TYPE_BRANCH
 #endif
 
-#include "SpeedTreeVertex.cginc"
+#include "Assets/CGIncludes/SpeedTreeVertex.cginc"
 
 // Define Input structure
 

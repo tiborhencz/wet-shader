@@ -8,10 +8,10 @@
 // on that in some places
 #define UNITY_PASS_META 1
 
-#include "UnityCG.cginc"
-#include "UnityStandardInput.cginc"
-#include "UnityMetaPass.cginc"
-#include "UnityStandardCore.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/UnityStandardInput.cginc"
+#include "Assets/CGIncludes/UnityMetaPass.cginc"
+#include "Assets/CGIncludes/UnityStandardCore.cginc"
 
 struct v2f_meta
 {

@@ -1,11 +1,11 @@
 #ifndef UNITY_PBS_LIGHTING_INCLUDED
 #define UNITY_PBS_LIGHTING_INCLUDED
 
-#include "UnityShaderVariables.cginc"
-#include "UnityStandardConfig.cginc"
-#include "UnityLightingCommon.cginc"
-#include "UnityGBuffer.cginc"
-#include "UnityGlobalIllumination.cginc"
+#include "Assets/CGIncludes/UnityShaderVariables.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityLightingCommon.cginc"
+#include "Assets/CGIncludes/UnityGBuffer.cginc"
+#include "Assets/CGIncludes/UnityGlobalIllumination.cginc"
 
 //-------------------------------------------------------------------------------------
 // Default BRDF to use:
@@ -96,6 +96,7 @@ struct SurfaceOutputStandard
 	// Smoothness is the user facing name, it should be perceptual smoothness but user should not have to deal with it.
 	// Everywhere in the code you meet smoothness it is perceptual smoothness
 	half Smoothness;	// 0=rough, 1=smooth
+	half Wetness;		// 0=dry, 1=wet
 	half Occlusion;		// occlusion (default 1)
 	fixed Alpha;		// alpha for transparencies
 };
@@ -113,7 +114,7 @@ inline half4 LightingStandard (SurfaceOutputStandard s, half3 viewDir, UnityGI g
 	half outputAlpha;
 	s.Albedo = PreMultiplyAlpha (s.Albedo, s.Alpha, oneMinusReflectivity, /*out*/ outputAlpha);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 	c.a = outputAlpha;
 	return c;
@@ -125,7 +126,7 @@ inline half4 LightingStandard_Deferred (SurfaceOutputStandard s, half3 viewDir, 
 	half3 specColor;
 	s.Albedo = DiffuseAndSpecularFromMetallic (s.Albedo, s.Metallic, /*out*/ specColor, /*out*/ oneMinusReflectivity);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 
 	UnityStandardData data;
@@ -164,6 +165,7 @@ struct SurfaceOutputStandardSpecular
 	fixed3 Normal;		// tangent space normal, if written
 	half3 Emission;
 	half Smoothness;	// 0=rough, 1=smooth
+	half Wetness;		// 0=dry, 1=wet
 	half Occlusion;		// occlusion (default 1)
 	fixed Alpha;		// alpha for transparencies
 };
@@ -181,7 +183,7 @@ inline half4 LightingStandardSpecular (SurfaceOutputStandardSpecular s, half3 vi
 	half outputAlpha;
 	s.Albedo = PreMultiplyAlpha (s.Albedo, s.Alpha, oneMinusReflectivity, /*out*/ outputAlpha);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 	c.a = outputAlpha;
 	return c;
@@ -193,7 +195,7 @@ inline half4 LightingStandardSpecular_Deferred (SurfaceOutputStandardSpecular s,
 	half oneMinusReflectivity;
 	s.Albedo = EnergyConservationBetweenDiffuseAndSpecular (s.Albedo, s.Specular, /*out*/ oneMinusReflectivity);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 
 	UnityStandardData data;

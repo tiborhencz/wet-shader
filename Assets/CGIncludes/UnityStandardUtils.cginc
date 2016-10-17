@@ -1,8 +1,8 @@
 #ifndef UNITY_STANDARD_UTILS_INCLUDED
 #define UNITY_STANDARD_UTILS_INCLUDED
 
-#include "UnityCG.cginc"
-#include "UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
 
 // Helper functions, maybe move into UnityCG.cginc
 

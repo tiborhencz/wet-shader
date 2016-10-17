@@ -1,7 +1,7 @@
 #ifndef TESSELLATION_CGINC_INCLUDED
 #define TESSELLATION_CGINC_INCLUDED
 
-#include "UnityShaderVariables.cginc"
+#include "Assets/CGIncludes/UnityShaderVariables.cginc"
 
 // ---- utility functions
 

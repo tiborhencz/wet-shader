@@ -1,9 +1,9 @@
 #ifndef UNITY_STANDARD_BRDF_INCLUDED
 #define UNITY_STANDARD_BRDF_INCLUDED
 
-#include "UnityCG.cginc"
-#include "UnityStandardConfig.cginc"
-#include "UnityLightingCommon.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityLightingCommon.cginc"
 
 //-----------------------------------------------------------------------------
 // Helper to convert smoothness to roughness
@@ -207,6 +207,42 @@ inline half3 Unity_SafeNormalize(half3 inVec)
 	return inVec * rsqrt(dp3);
 }
 
+//from https://seblagarde.wordpress.com/2013/01/03/water-drop-2b-dynamic-rain-and-its-effects/
+float3 Unity_ComputeRaindropRippleNormal(sampler2D raidropRippleMap, float2 uv, float weight)
+{
+	float4 ripple = tex2D(raidropRippleMap, uv);
+	ripple.yz = ripple.yz * 2 - 1;
+	float dropFrac = frac(ripple.w + _Time.y);
+	float timeFrac = dropFrac - 1 + ripple.x;
+	float dropFactor = saturate(0.2 + 0.8f * weight - dropFrac);
+	float finalFactor = dropFactor * ripple.x * sin(clamp(timeFrac * 0.9, 0, 3) * 3.14159 * 8);
+	return float3(ripple.yz * finalFactor * 0.35f, 1.0f);
+}
+
+float3 Unity_GetRippleBlendedNormal(sampler2D raindropRippleMap, float2 uv, float3 normal, float wetness)
+{
+	float4 timeMul = float4(1.0f, 0.85f, 0.93f, 1.13f);
+	float4 timeAdd = float4(0.0f, 0.2f, 0.45f, 0.7f);
+	float4 times = (_Time * timeMul + timeAdd) * 1.6f;
+	times = frac(times);
+
+	float3 ripple1 = Unity_ComputeRaindropRippleNormal(raindropRippleMap, uv, 1);
+	float3 ripple2 = Unity_ComputeRaindropRippleNormal(raindropRippleMap, uv + float2(0.1, 0.25), 1);
+	float3 ripple3 = Unity_ComputeRaindropRippleNormal(raindropRippleMap, uv + float2(-0.21, 0.3), 1);
+	float3 ripple4 = Unity_ComputeRaindropRippleNormal(raindropRippleMap, uv + float2(-0.7, -0.62), 1);
+	float4 weights = float4(1, 0.75, 0.5, 0.25);
+
+	float4 z = lerp(1, float4(ripple1.z, ripple2.z, ripple3.z, ripple4.z), weights);
+	float3 rippleNormal = float3(weights.x * ripple1.xy +
+								weights.y * ripple2.xy +
+								weights.z * ripple3.xy +
+								weights.w * ripple4.xy,
+								z.x * z.y * z.z * z.w);
+	float3 n2 = normalize(rippleNormal);
+	float3 n1 = normal;
+	return normalize(half3(n1.xy + n2.xy * wetness, n1.z*n2.z * wetness));
+}
+
 //-------------------------------------------------------------------------------------
 
 // Note: BRDF entry points use smoothness and oneMinusReflectivity for optimization
@@ -225,7 +261,7 @@ inline half3 Unity_SafeNormalize(half3 inVec)
 //  b) GGX
 // * Smith for Visiblity term
 // * Schlick approximation for Fresnel
-half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness,
+half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness,
 	half3 normal, half3 viewDir,
 	UnityLight light, UnityIndirect gi)
 {
@@ -269,6 +305,7 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 #if UNITY_BRDF_GGX
 	half V = SmithJointGGXVisibilityTerm (nl, nv, roughness);
 	half D = GGXTerm (nh, roughness);
+	half Dwet = GGXTerm (nh, 0.002);
 #else
 	// Legacy
 	half V = SmithBeckmannVisibilityTerm (nl, nv, roughness);
@@ -276,6 +313,7 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 #endif
 
 	half specularTerm = V*D * UNITY_PI; // Torrance-Sparrow model, Fresnel is applied later
+	half specularTermWet = V*Dwet * UNITY_PI; // Torrance-Sparrow model, Fresnel is applied later
 
 #	ifdef UNITY_COLORSPACE_GAMMA
 		specularTerm = sqrt(max(1e-4h, specularTerm));
@@ -301,6 +339,7 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 	half grazingTerm = saturate(smoothness + (1-oneMinusReflectivity));
     half3 color =	diffColor * (gi.diffuse + light.color * diffuseTerm)
                     + specularTerm * light.color * FresnelTerm (specColor, lh)
+                    + specularTermWet * light.color * FresnelTerm (specColor, lh) * wetness
 					+ surfaceReduction * gi.specular * FresnelLerp (specColor, grazingTerm, nv);
 
 	return half4(color, 1);
@@ -314,7 +353,7 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 //  b) [Modified] GGX
 // * Modified Kelemen and Szirmay-​Kalos for Visibility term
 // * Fresnel approximated with 1/LdotH
-half4 BRDF2_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness,
+half4 BRDF2_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness,
 	half3 normal, half3 viewDir,
 	UnityLight light, UnityIndirect gi)
 {
@@ -429,7 +468,7 @@ half3 BRDF3_Indirect(half3 diffColor, half3 specColor, UnityIndirect indirect, h
 // * No Fresnel term
 //
 // TODO: specular is too weak in Linear rendering mode
-half4 BRDF3_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness,
+half4 BRDF3_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness,
 	half3 normal, half3 viewDir,
 	UnityLight light, UnityIndirect gi)
 {
@@ -454,7 +493,7 @@ half4 BRDF3_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 
 // Include deprecated function
 #define INCLUDE_UNITY_STANDARD_BRDF_DEPRECATED
-#include "UnityDeprecated.cginc"
+#include "Assets/CGIncludes/UnityDeprecated.cginc"
 #undef INCLUDE_UNITY_STANDARD_BRDF_DEPRECATED
 
 #endif // UNITY_STANDARD_BRDF_INCLUDED

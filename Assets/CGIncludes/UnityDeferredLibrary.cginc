@@ -58,7 +58,7 @@ sampler2D _ShadowMapTexture;
 // --------------------------------------------------------
 // Shadow/fade helpers
 
-#include "UnityShadowLibrary.cginc"
+#include "Assets/CGIncludes/UnityShadowLibrary.cginc"
 
 
 float UnityDeferredComputeFadeDistance(float3 wpos, float z)

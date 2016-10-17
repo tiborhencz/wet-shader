@@ -1,8 +1,8 @@
 #ifndef AUTOLIGHT_INCLUDED
 #define AUTOLIGHT_INCLUDED
 
-#include "HLSLSupport.cginc"
-#include "UnityShadowLibrary.cginc"
+#include "Assets/CGIncludes/HLSLSupport.cginc"
+#include "Assets/CGIncludes/UnityShadowLibrary.cginc"
 
 #define unityShadowCoord float
 #define unityShadowCoord2 float2

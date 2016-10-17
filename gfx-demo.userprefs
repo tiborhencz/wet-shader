@@ -1,16 +1,21 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Editor/StandardShaderGUI.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/CGIncludes/UnityStandardBRDF.cginc">
     <Files>
-      <File FileName="Assets/Shaders/WetStandardShader.shader" Line="1" Column="1" />
-      <File FileName="Assets/CGIncludes/UnityStandardShadow.cginc" Line="1" Column="1" />
-      <File FileName="Assets/CGIncludes/UnityStandardCoreForwardSimple.cginc" Line="1" Column="1" />
-      <File FileName="Assets/CGIncludes/UnityLightingCommon.cginc" Line="1" Column="1" />
-      <File FileName="Assets/CGIncludes/UnityStandardCore.cginc" Line="1" Column="1" />
-      <File FileName="Assets/CGIncludes/UnityStandardInput.cginc" Line="164" Column="20" />
-      <File FileName="Assets/Editor/StandardShaderGUI.cs" Line="333" Column="10" />
-      <File FileName="Assets/Shaders/My First Lighting Shader.shader" Line="88" Column="1" />
-      <File FileName="Assets/Shaders/My Lighting.cginc" Line="165" Column="23" />
+      <File FileName="Assets/CGIncludes/UnityStandardBRDF.cginc" Line="320" Column="30" />
+      <File FileName="Assets/CGIncludes/UnityStandardCore.cginc" Line="429" Column="15" />
+      <File FileName="Assets/CGIncludes/UnityLightingCommon.cginc" Line="23" Column="11" />
+      <File FileName="Assets/CGIncludes/UnityStandardInput.cginc" Line="166" Column="9" />
+      <File FileName="Assets/Editor/StandardShaderGUI.cs" Line="1" Column="1" />
+      <File FileName="Assets/CGIncludes/UnityStandardShadow.cginc" Line="54" Column="26" />
+      <File FileName="Assets/CGIncludes/UnityStandardUtils.cginc" Line="44" Column="14" />
+      <File FileName="Assets/CGIncludes/UnityPBSLighting.cginc" Line="1" Column="1" />
+      <File FileName="Assets/CGIncludes/UnityShaderVariables.cginc" Line="260" Column="38" />
+      <File FileName="Assets/CGIncludes/UnityGlobalIllumination.cginc" Line="1" Column="1" />
+      <File FileName="Assets/CGIncludes/UnityStandardCoreForward.cginc" Line="1" Column="1" />
+      <File FileName="Assets/CGIncludes/UnityImageBasedLighting.cginc" Line="520" Column="30" />
+      <File FileName="Assets/CGIncludes/Lighting.cginc" Line="1" Column="1" />
+      <File FileName="Assets/CGIncludes/UnityDeprecated.cginc" Line="139" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

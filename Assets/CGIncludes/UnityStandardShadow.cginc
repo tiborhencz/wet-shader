@@ -5,11 +5,11 @@
 // otherwise compiler gives trouble with LIGHTING_COORDS macro (in UnityStandardCore.cginc)
 
 
-#include "UnityCG.cginc"
-#include "UnityShaderVariables.cginc"
-#include "UnityInstancing.cginc"
-#include "UnityStandardConfig.cginc"
-#include "UnityStandardUtils.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/UnityShaderVariables.cginc"
+#include "Assets/CGIncludes/UnityInstancing.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityStandardUtils.cginc"
 
 // Do dithering for alpha blended shadows on SM3+/desktop;
 // on lesser systems do simple alpha-tested shadows

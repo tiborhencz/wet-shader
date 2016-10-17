@@ -5,8 +5,8 @@
 
 #define IMPROVED_BAKED_AND_REALTIME_SHADOW_MIXING 1
 
-#include "UnityImageBasedLighting.cginc"
-#include "UnityStandardUtils.cginc"
+#include "Assets/CGIncludes/UnityImageBasedLighting.cginc"
+#include "Assets/CGIncludes/UnityStandardUtils.cginc"
 
 inline half3 DecodeDirectionalSpecularLightmap (half3 color, fixed4 dirTex, half3 normalWorld, bool isRealtimeLightmap, fixed4 realtimeNormalTex, out UnityLight o_light)
 {

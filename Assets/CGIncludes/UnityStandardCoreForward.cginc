@@ -5,16 +5,16 @@
 #	define UNITY_STANDARD_SIMPLE 1
 #endif
 
-#include "UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
 
 #if UNITY_STANDARD_SIMPLE
-	#include "UnityStandardCoreForwardSimple.cginc"
+	#include "Assets/CGIncludes/UnityStandardCoreForwardSimple.cginc"
 	VertexOutputBaseSimple vertBase (VertexInput v) { return vertForwardBaseSimple(v); }
 	VertexOutputForwardAddSimple vertAdd (VertexInput v) { return vertForwardAddSimple(v); }
 	half4 fragBase (VertexOutputBaseSimple i) : SV_Target { return fragForwardBaseSimpleInternal(i); }
 	half4 fragAdd (VertexOutputForwardAddSimple i) : SV_Target { return fragForwardAddSimpleInternal(i); }
 #else
-	#include "UnityStandardCore.cginc"
+	#include "Assets/CGIncludes/UnityStandardCore.cginc"
 	VertexOutputForwardBase vertBase (VertexInput v) { return vertForwardBase(v); }
 	VertexOutputForwardAdd vertAdd (VertexInput v) { return vertForwardAdd(v); }
 	half4 fragBase (VertexOutputForwardBase i) : SV_Target { return fragForwardBaseInternal(i); }

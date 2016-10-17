@@ -3,9 +3,9 @@
 
 // Shared tree shader functionality for Unity 3.x Tree Creator shaders
 
-#include "UnityCG.cginc"
-#include "Lighting.cginc"
-#include "TerrainEngine.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/Lighting.cginc"
+#include "Assets/CGIncludes/TerrainEngine.cginc"
 
 fixed4 _Color;
 fixed3 _TranslucencyColor;

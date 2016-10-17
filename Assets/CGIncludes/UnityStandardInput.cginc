@@ -1,12 +1,12 @@
 #ifndef UNITY_STANDARD_INPUT_INCLUDED
 #define UNITY_STANDARD_INPUT_INCLUDED
 
-#include "UnityCG.cginc"
-#include "UnityShaderVariables.cginc"
-#include "UnityInstancing.cginc"
-#include "UnityStandardConfig.cginc"
-#include "UnityPBSLighting.cginc" // TBD: remove
-#include "UnityStandardUtils.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/UnityShaderVariables.cginc"
+#include "Assets/CGIncludes/UnityInstancing.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityPBSLighting.cginc" // TBD: remove
+#include "Assets/CGIncludes/UnityStandardUtils.cginc"
 
 //---------------------------------------
 // Directional lightmaps & Parallax require tangent space too
@@ -40,6 +40,10 @@ sampler2D	_MetallicGlossMap;
 half		_Metallic;
 half		_Glossiness;
 half		_GlossMapScale;
+
+half		_Porosity;
+half		_Wetness;
+sampler2D	_RaindropRipple;
 
 sampler2D	_OcclusionMap;
 half		_OcclusionStrength;
@@ -148,6 +152,16 @@ half4 SpecularGloss(float2 uv)
 	#endif
 #endif
 	return sg;
+}
+
+float4 RaindropRipple(float2 uv)
+{
+	float4 ripple = tex2D(_RaindropRipple, uv);
+}
+
+half Wetness()
+{
+	return _Wetness;
 }
 
 half2 MetallicGloss(float2 uv)

@@ -10,8 +10,8 @@
 #define UNITY_HALF_PI		1.57079632679f
 #define UNITY_INV_HALF_PI	0.636619772367f
 
-#include "UnityShaderVariables.cginc"
-#include "UnityInstancing.cginc"
+#include "Assets/CGIncludes/UnityShaderVariables.cginc"
+#include "Assets/CGIncludes/UnityInstancing.cginc"
 
 #ifdef UNITY_COLORSPACE_GAMMA
 #define unity_ColorSpaceGrey fixed4(0.5, 0.5, 0.5, 0.5)

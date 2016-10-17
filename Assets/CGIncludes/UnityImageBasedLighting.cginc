@@ -1,9 +1,9 @@
 #ifndef UNITY_IMAGE_BASED_LIGHTING_INCLUDED
 #define UNITY_IMAGE_BASED_LIGHTING_INCLUDED
 
-#include "UnityCG.cginc"
-#include "UnityStandardConfig.cginc"
-#include "UnityStandardBRDF.cginc"
+#include "Assets/CGIncludes/UnityCG.cginc"
+#include "Assets/CGIncludes/UnityStandardConfig.cginc"
+#include "Assets/CGIncludes/UnityStandardBRDF.cginc"
 
 // ----------------------------------------------------------------------------
 
@@ -556,7 +556,7 @@ half3 Unity_GlossyEnvironment (UNITY_ARGS_TEXCUBE(tex), half4 hdr, Unity_GlossyE
 // ----------------------------------------------------------------------------
 // Include deprecated function
 #define INCLUDE_UNITY_IMAGE_BASED_LIGHTING_DEPRECATED
-#include "UnityDeprecated.cginc"
+#include "Assets/CGIncludes/UnityDeprecated.cginc"
 #undef INCLUDE_UNITY_IMAGE_BASED_LIGHTING_DEPRECATED
 
 // ----------------------------------------------------------------------------

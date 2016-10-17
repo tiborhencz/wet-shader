@@ -9,7 +9,8 @@ internal class StandardShaderGUI : ShaderGUI
 	{
 		Specular,
 		Metallic,
-		Dielectric
+		Dielectric,
+		Wet
 	}
 
 	public enum BlendMode
@@ -37,6 +38,9 @@ internal class StandardShaderGUI : ShaderGUI
 		public static GUIContent alphaCutoffText = new GUIContent("Alpha Cutoff", "Threshold for alpha cutoff");
 		public static GUIContent specularMapText = new GUIContent("Specular", "Specular (RGB) and Smoothness (A)");
 		public static GUIContent metallicMapText = new GUIContent("Metallic", "Metallic (R) and Smoothness (A)");
+		public static GUIContent porosityText = new GUIContent("Porosity", "How porous the material is (for wetness)");
+		public static GUIContent wetnessText = new GUIContent("Wetness", "How wet the material is");
+		public static GUIContent rippleMapText = new GUIContent("Ripple Map", "Raindrop Ripple Map");
 		public static GUIContent smoothnessText = new GUIContent("Smoothness", "Smoothness value");
 		public static GUIContent smoothnessScaleText = new GUIContent("Smoothness", "Smoothness scale factor");
 		public static GUIContent smoothnessMapChannelText = new GUIContent("Source", "Smoothness texture and channel");
@@ -68,6 +72,9 @@ internal class StandardShaderGUI : ShaderGUI
 	MaterialProperty specularColor = null;
 	MaterialProperty metallicMap = null;
 	MaterialProperty metallic = null;
+	MaterialProperty porosity = null;
+	MaterialProperty wetness = null;
+	MaterialProperty rippleMap = null;
 	MaterialProperty smoothness = null;
 	MaterialProperty smoothnessScale = null;
 	MaterialProperty smoothnessMapChannel = null;
@@ -103,8 +110,13 @@ internal class StandardShaderGUI : ShaderGUI
 		specularColor = FindProperty ("_SpecColor", props, false);
 		metallicMap = FindProperty ("_MetallicGlossMap", props, false);
 		metallic = FindProperty ("_Metallic", props, false);
+		porosity = FindProperty ("_Porosity", props, false);
+		wetness = FindProperty ("_Wetness", props, false);
+		rippleMap = FindProperty ("_RaindropRipple", props, false);
 		if (specularMap != null && specularColor != null)
 			m_WorkflowMode = WorkflowMode.Specular;
+		else if (porosity != null && wetness != null)
+			m_WorkflowMode = WorkflowMode.Wet;
 		else if (metallicMap != null && metallic != null)
 			m_WorkflowMode = WorkflowMode.Metallic;
 		else
@@ -161,6 +173,7 @@ internal class StandardShaderGUI : ShaderGUI
 			GUILayout.Label (Styles.primaryMapsText, EditorStyles.boldLabel);
 			DoAlbedoArea(material);
 			DoSpecularMetallicArea();
+			DoWetnessArea();
 			m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, bumpMap, bumpMap.textureValue != null ? bumpScale : null);
 			m_MaterialEditor.TexturePropertySingleLine(Styles.heightMapText, heightMap, heightMap.textureValue != null ? heigtMapScale : null);
 			m_MaterialEditor.TexturePropertySingleLine(Styles.occlusionText, occlusionMap, occlusionMap.textureValue != null ? occlusionStrength : null);
@@ -199,6 +212,8 @@ internal class StandardShaderGUI : ShaderGUI
 	{
 		if (FindProperty("_SpecGlossMap", props, false) != null && FindProperty("_SpecColor", props, false) != null)
 			m_WorkflowMode = WorkflowMode.Specular;
+		else if (FindProperty("_Porosity", props, false) != null && FindProperty("_Wetness", props, false) != null)
+			m_WorkflowMode = WorkflowMode.Wet;
 		else if (FindProperty("_MetallicGlossMap", props, false) != null && FindProperty("_Metallic", props, false) != null)
 			m_WorkflowMode = WorkflowMode.Metallic;
 		else
@@ -295,7 +310,7 @@ internal class StandardShaderGUI : ShaderGUI
 			hasGlossMap = specularMap.textureValue != null;
 			m_MaterialEditor.TexturePropertySingleLine(Styles.specularMapText, specularMap, hasGlossMap ? null : specularColor);
 		}
-		else if (m_WorkflowMode == WorkflowMode.Metallic)
+        else if (m_WorkflowMode == WorkflowMode.Metallic || m_WorkflowMode == WorkflowMode.Wet)
 		{
 			hasGlossMap = metallicMap.textureValue != null;
 			m_MaterialEditor.TexturePropertySingleLine(Styles.metallicMapText, metallicMap, hasGlossMap ? null : metallic);
@@ -316,6 +331,16 @@ internal class StandardShaderGUI : ShaderGUI
 		if (smoothnessMapChannel != null)
 			m_MaterialEditor.ShaderProperty(smoothnessMapChannel, Styles.smoothnessMapChannelText, indentation);
 	}
+
+    void DoWetnessArea()
+    {
+        if (m_WorkflowMode == WorkflowMode.Wet)
+        {
+            m_MaterialEditor.ShaderProperty(porosity, Styles.porosityText, 2);
+            m_MaterialEditor.ShaderProperty(wetness, Styles.wetnessText, 2);
+            m_MaterialEditor.TexturePropertySingleLine(Styles.rippleMapText, rippleMap);
+        }
+    }
 
 	public static void SetupMaterialWithBlendMode(Material material, BlendMode blendMode)
 	{
