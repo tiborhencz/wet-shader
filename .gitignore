@@ -1,0 +1,11 @@
+Library
+Temp
+obj
+*.sln
+*.csproj
+.DS_Store
+Library
+Temp
+.DS_Store
+Library
+Temp
