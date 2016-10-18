@@ -178,6 +178,7 @@ struct FragmentCommonData
 	half3 normalWorld, eyeVec, posWorld;
 	half alpha;
 	half wetness;
+	half porosity;
 
 #if UNITY_OPTIMIZE_TEXCUBELOD || UNITY_STANDARD_SIMPLE
 	half3 reflUVW;
@@ -205,6 +206,7 @@ inline FragmentCommonData SpecularSetup (float4 i_tex)
 	o.diffColor = diffColor;
 	o.specColor = specColor;
 	o.wetness = Wetness();
+	o.porosity = Porosity();
 	o.oneMinusReflectivity = oneMinusReflectivity;
 	o.smoothness = smoothness;
 	return o;
@@ -216,9 +218,10 @@ inline FragmentCommonData MetallicSetup (float4 i_tex)
 	half metallic = metallicGloss.x;
 	half smoothness = metallicGloss.y; // this is 1 minus the square root of real roughness m.
 	half wetness = Wetness();
+	half porosity = Porosity();
 
 	//from https://seblagarde.wordpress.com/2013/01/03/water-drop-2b-dynamic-rain-and-its-effects/
-	float factor = lerp(1, 0.2, _Porosity);
+	float factor = lerp(1, 0.2, porosity);
 	half oneMinusReflectivity;
 	half3 specColor;
 	half3 diffColor = DiffuseAndSpecularFromMetallic (Albedo(i_tex), max(metallic, wetness), /*out*/ specColor, /*out*/ oneMinusReflectivity);
@@ -226,7 +229,8 @@ inline FragmentCommonData MetallicSetup (float4 i_tex)
 	FragmentCommonData o = (FragmentCommonData)0;
 	o.diffColor = diffColor * lerp(1.0, factor, wetness);
 	o.specColor = specColor;
-	o.wetness = Wetness();
+	o.wetness = wetness;
+	o.porosity = porosity;
 	o.oneMinusReflectivity = oneMinusReflectivity ;
 	o.smoothness = smoothness;
 	return o;
@@ -431,7 +435,7 @@ half4 fragForwardBaseInternal (VertexOutputForwardBase i)
 	half occlusion = Occlusion(i.tex.xy);
 	UnityGI gi = FragmentGI (s, occlusion, i.ambientOrLightmapUV, atten, mainLight);
 	s.normalWorld = Unity_GetRippleBlendedNormal(_RaindropRipple, i.tex.xy, s.normalWorld, s.wetness);
-	half4 c = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.wetness, s.normalWorld, -s.eyeVec, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.wetness, s.porosity, s.normalWorld, -s.eyeVec, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.normalWorld, -s.eyeVec, occlusion, gi);
 	c.rgb += Emission(i.tex.xy);
 
@@ -515,7 +519,7 @@ half4 fragForwardAddInternal (VertexOutputForwardAdd i)
 	UnityLight light = AdditiveLight (IN_LIGHTDIR_FWDADD(i), LIGHT_ATTENUATION(i));
 	UnityIndirect noIndirect = ZeroIndirect ();
 
-	half4 c = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.wetness, s.normalWorld, -s.eyeVec, light, noIndirect);
+	half4 c = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.wetness, s.porosity, s.normalWorld, -s.eyeVec, light, noIndirect);
 	
 	UNITY_APPLY_FOG_COLOR(i.fogCoord, c.rgb, half4(0,0,0,0)); // fog towards black in additive pass
 	return OutputForward (c, s.alpha);
@@ -642,7 +646,7 @@ void fragDeferred (
 
 	UnityGI gi = FragmentGI (s, occlusion, i.ambientOrLightmapUV, atten, dummyLight, sampleReflectionsInDeferred);
 
-	half3 emissiveColor = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.wetness, s.normalWorld, -s.eyeVec, gi.light, gi.indirect).rgb;
+	half3 emissiveColor = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.wetness, s.porosity, s.normalWorld, -s.eyeVec, gi.light, gi.indirect).rgb;
 	emissiveColor += UNITY_BRDF_GI (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.normalWorld, -s.eyeVec, occlusion, gi);
 
 	#ifdef _EMISSION

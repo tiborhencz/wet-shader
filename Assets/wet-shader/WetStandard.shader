@@ -335,3 +335,4 @@ Shader "Standard (Wet)"
 	FallBack "VertexLit"
 	CustomEditor "StandardShaderGUI"
 }
+

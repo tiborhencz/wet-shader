@@ -97,6 +97,7 @@ struct SurfaceOutputStandard
 	// Everywhere in the code you meet smoothness it is perceptual smoothness
 	half Smoothness;	// 0=rough, 1=smooth
 	half Wetness;		// 0=dry, 1=wet
+	half Porosity;		// 0=tight, 1=porous
 	half Occlusion;		// occlusion (default 1)
 	fixed Alpha;		// alpha for transparencies
 };
@@ -114,7 +115,7 @@ inline half4 LightingStandard (SurfaceOutputStandard s, half3 viewDir, UnityGI g
 	half outputAlpha;
 	s.Albedo = PreMultiplyAlpha (s.Albedo, s.Alpha, oneMinusReflectivity, /*out*/ outputAlpha);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Porosity, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 	c.a = outputAlpha;
 	return c;
@@ -126,7 +127,7 @@ inline half4 LightingStandard_Deferred (SurfaceOutputStandard s, half3 viewDir, 
 	half3 specColor;
 	s.Albedo = DiffuseAndSpecularFromMetallic (s.Albedo, s.Metallic, /*out*/ specColor, /*out*/ oneMinusReflectivity);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Porosity, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, specColor, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 
 	UnityStandardData data;
@@ -166,6 +167,7 @@ struct SurfaceOutputStandardSpecular
 	half3 Emission;
 	half Smoothness;	// 0=rough, 1=smooth
 	half Wetness;		// 0=dry, 1=wet
+	half Porosity;		// 0=tight, 1=porous
 	half Occlusion;		// occlusion (default 1)
 	fixed Alpha;		// alpha for transparencies
 };
@@ -183,7 +185,7 @@ inline half4 LightingStandardSpecular (SurfaceOutputStandardSpecular s, half3 vi
 	half outputAlpha;
 	s.Albedo = PreMultiplyAlpha (s.Albedo, s.Alpha, oneMinusReflectivity, /*out*/ outputAlpha);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Porosity, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 	c.a = outputAlpha;
 	return c;
@@ -195,7 +197,7 @@ inline half4 LightingStandardSpecular_Deferred (SurfaceOutputStandardSpecular s,
 	half oneMinusReflectivity;
 	s.Albedo = EnergyConservationBetweenDiffuseAndSpecular (s.Albedo, s.Specular, /*out*/ oneMinusReflectivity);
 
-	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Normal, viewDir, gi.light, gi.indirect);
+	half4 c = UNITY_BRDF_PBS (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Wetness, s.Porosity, s.Normal, viewDir, gi.light, gi.indirect);
 	c.rgb += UNITY_BRDF_GI (s.Albedo, s.Specular, oneMinusReflectivity, s.Smoothness, s.Normal, viewDir, s.Occlusion, gi);
 
 	UnityStandardData data;

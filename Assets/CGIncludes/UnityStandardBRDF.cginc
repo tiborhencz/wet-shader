@@ -261,7 +261,7 @@ float3 Unity_GetRippleBlendedNormal(sampler2D raindropRippleMap, float2 uv, floa
 //  b) GGX
 // * Smith for Visiblity term
 // * Schlick approximation for Fresnel
-half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness,
+half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness, half porosity,
 	half3 normal, half3 viewDir,
 	UnityLight light, UnityIndirect gi)
 {
@@ -303,7 +303,7 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 	// and 2) on engine side "Non-important" lights have to be divided by Pi too in cases when they are injected into ambient SH
 	half roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
 #if UNITY_BRDF_GGX
-	half V = SmithJointGGXVisibilityTerm (nl, nv, roughness);
+	half V = SmithJointGGXVisibilityTerm (nl, nv, min(roughness, 1-wetness));
 	half D = GGXTerm (nh, roughness);
 	half Dwet = GGXTerm (nh, 0.002);
 #else
@@ -327,18 +327,20 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 
 	// surfaceReduction = Int D(NdotH) * NdotH * Id(NdotL>0) dH = 1/(roughness^2+1)
 	half surfaceReduction;
+	half roughnessTerm = min(roughness, 1-wetness);
 #	ifdef UNITY_COLORSPACE_GAMMA
-		surfaceReduction = 1.0-0.28*roughness*perceptualRoughness;		// 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
+		surfaceReduction = 1.0-0.28*roughnessTerm*sqrt(roughnessTerm);		// 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
 #	else
-		surfaceReduction = 1.0 / (roughness*roughness + 1.0);			// fade \in [0.5;1]
+		surfaceReduction = 1.0 / (roughnessTerm*roughnessTerm + 1.0);			// fade \in [0.5;1]
 #	endif
 
 	// To provide true Lambert lighting, we need to be able to kill specular completely.
 	specularTerm *= any(specColor) ? 1.0 : 0.0;
+	float factor = lerp(1, 1 - porosity, wetness);
 
 	half grazingTerm = saturate(smoothness + (1-oneMinusReflectivity));
     half3 color =	diffColor * (gi.diffuse + light.color * diffuseTerm)
-                    + specularTerm * light.color * FresnelTerm (specColor, lh)
+                    + specularTerm * light.color * FresnelTerm (specColor, lh) * factor
                     + specularTermWet * light.color * FresnelTerm (specColor, lh) * wetness
 					+ surfaceReduction * gi.specular * FresnelLerp (specColor, grazingTerm, nv);
 
@@ -353,7 +355,7 @@ half4 BRDF1_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivi
 //  b) [Modified] GGX
 // * Modified Kelemen and Szirmay-​Kalos for Visibility term
 // * Fresnel approximated with 1/LdotH
-half4 BRDF2_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness,
+half4 BRDF2_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness, half porosity,
 	half3 normal, half3 viewDir,
 	UnityLight light, UnityIndirect gi)
 {
@@ -468,7 +470,7 @@ half3 BRDF3_Indirect(half3 diffColor, half3 specColor, UnityIndirect indirect, h
 // * No Fresnel term
 //
 // TODO: specular is too weak in Linear rendering mode
-half4 BRDF3_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness,
+half4 BRDF3_Unity_PBS (half3 diffColor, half3 specColor, half oneMinusReflectivity, half smoothness, half wetness, half porosity,
 	half3 normal, half3 viewDir,
 	UnityLight light, UnityIndirect gi)
 {

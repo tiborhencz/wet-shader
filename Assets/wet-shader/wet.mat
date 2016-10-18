@@ -138,7 +138,7 @@ Material:
       second: 0.005
     - first:
         name: _Porosity
-      second: 0.57
+      second: 1
     - first:
         name: _RaindropRippleIterations
       second: 2
@@ -159,7 +159,7 @@ Material:
       second: 0
     - first:
         name: _Wetness
-      second: 1
+      second: 0.218
     - first:
         name: _ZWrite
       second: 1

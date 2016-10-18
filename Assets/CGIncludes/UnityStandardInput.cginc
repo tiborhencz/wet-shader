@@ -164,6 +164,11 @@ half Wetness()
 	return _Wetness;
 }
 
+half Porosity()
+{
+	return _Porosity;
+}
+
 half2 MetallicGloss(float2 uv)
 {
 	half2 mg;
